@@ -3,6 +3,7 @@ package reative
 import (
 	"RxAny/main/config"
 	"RxAny/main/cron"
+	"sync"
 )
 
 type Task struct {
@@ -17,20 +18,27 @@ type Task struct {
 
 var nowThread = 0
 
+var mutex sync.Mutex
+
 func (t *Task) AddValue(name string, value []byte) *Task {
+	mutex.Lock()
 	if t.resultChan[name] == nil {
-		t.resultChan[name] = make(chan []byte, 100)
+		t.resultChan[name] = make(chan []byte, config.DefaultBuffSize)
 	}
 	t.resultChan[name] <- value
+	mutex.Unlock()
 	return t
 }
 
 func (t Task) GetValue(name string) []byte {
 	var result []byte
+	mutex.Lock()
 	if t.resultChan[name] == nil {
 		t.resultChan[name] = make(chan []byte, config.DefaultBuffSize)
 	}
 	result = <-t.resultChan[name]
+	close(t.resultChan[name])
+	mutex.Unlock()
 	return result
 }
 

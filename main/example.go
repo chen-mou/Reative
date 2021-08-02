@@ -2,6 +2,7 @@ package main
 
 import (
 	"RxAny/main/reative"
+	"encoding/json"
 	"log"
 )
 
@@ -9,23 +10,28 @@ func main() {
 
 	task := reative.Create()
 
-	a := 10
-	b := 40
+	var a = 10
+	var d = 10
+	var b = 40
 	var c int
 
 	task.AddTask("getA", func() {
 		a *= b
-		task.AddValue("a", []byte{byte(a)})
+		by, _ := json.Marshal(a)
+		task.AddValue("a", by)
 	}).AddTask("getB", func() {
-		b *= a + b
-		task.AddValue("b", []byte{byte(b)})
+		b = d + b
+		by1, _ := json.Marshal(b)
+		task.AddValue("b", by1)
 	}).AddTask("getC", func() {
-		c = 100
+		c = 10
+		var temp int
 		if c <= 10 {
-			c *= int(task.GetValue("a")[0])
+			json.Unmarshal(task.GetValue("a"), &temp)
 		} else {
-			c *= int(task.GetValue("b")[0])
+			json.Unmarshal(task.GetValue("b"), &temp)
 		}
+		c *= temp
 		log.Print(c)
 	})
 
