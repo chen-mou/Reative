@@ -42,7 +42,7 @@ func (t *Task) getTask() {
 	}
 }
 
-func (t *Task) AddTask(task func(), name string) *Task {
+func (t *Task) AddTask(name string, task func()) *Task {
 	t.isClose = false
 	if t.tasks[name] != nil {
 		panic("该名字已被使用")
@@ -57,6 +57,15 @@ func (t *Task) Wait() {
 
 func (t *Task) Close() {
 	t.isDelete = true
+}
+
+func Create() Task {
+	return Task{
+		isDelete:   false,
+		isClose:    false,
+		resultChan: make(map[string]chan []byte),
+		tasks:      make(map[string]func()),
+	}
 }
 
 func (t *Task) start() {
